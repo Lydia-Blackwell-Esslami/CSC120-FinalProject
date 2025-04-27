@@ -10,12 +10,15 @@ public class Car {
     public int price;
     public int year;
     public int mileage;
-    public String location;
+    public Place location;
+    public String trendingColor;
 
-    public Car(String startingLocation){
+    public Car(Place startingLocation){
         Random partMaker = new Random();
         this.location = startingLocation;
-        if (this.location.contentEquals("suburbs")){
+        this.trendingColor = "blue";
+        this.parts = new Hashtable<>();
+        if (this.location.name.contentEquals("suburbs")){
             this.year = partMaker.nextInt(1998, 2023);
             parts.put("Tires", partMaker.nextInt(3, 6));
             parts.put("Brakes", partMaker.nextInt(3, 6));
@@ -41,15 +44,15 @@ public class Car {
         "Chevrolet Suburban", "Chevrolet Corvette", "Mitsubishi Delica", "Mitsubishi Minica", "Mitsubishi Galant", 
         "Mitsubishi Lancer", "Dodge Charger", "Volkswagon Caravelle", "Volkswagon Beetle", "Mercedes E-Class", "Mercedes S-Class",
         "Mercedes AMG SL", "Mazda Carol", "Mazda Bongo", "Mazda B-Series", "Mazda Familia", "Subaru Sambar Truck", "Subaru Sambar Van"};
-        this.name = carNames[partMaker.nextInt(0, 30)];
+        this.name = carNames[partMaker.nextInt(0, carNames.length)];
         
         String[] colors = new String[] {"red", "blue", "green", "white", "black"};
-        this.color = colors[partMaker.nextInt(0,6)];
+        this.color = colors[partMaker.nextInt(0,5)];
 
     }
 
     public void upgrade(String part){
-        if (location.contains("garage")){
+        if (location.name.contains("repair shop")){
         int value = this.parts.get(part);
         this.parts.replace(part, value+1);
         } else {
@@ -63,14 +66,17 @@ public class Car {
             parts.get("tires")+
             parts.get("brakes")+
             parts.get("oil")+
-            parts.get("suspension"))>= 30) {
+            parts.get("suspension"))>= 26) {
                 mileage/=2;       
         }
     }
 
     public void paint(String color){
-        if (this.location.contains("garage")){
+        if (this.location.name.contains("repair shop")){
             this.color = color;
+            if (color.equals(trendingColor)){
+                this.price += 500;
+            }
         } else {
             System.out.println("Can't do that here.");
         }
@@ -79,7 +85,16 @@ public class Car {
     public void calculateFinalPrice(){
         
         String s = "Milage, Year";
-         p = parts.values();
+        int state = 0;
+        state += parts.get("Tires");
+        state += parts.get("Brakes");
+        state += parts.get("Suspension");
+        state += parts.get("Oil");
+        state += parts.get("Transmission");
+        state += parts.get("Engine");
+
+        this.price = (price*(state/5)*state+(300000-mileage))/(3000-year);
+
         
         
     }

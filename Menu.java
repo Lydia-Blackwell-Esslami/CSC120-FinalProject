@@ -15,11 +15,10 @@ public class Menu {
         while (true) { 
             this.showOptions();
             Integer choice = input.nextInt();
-            if (options.contains(choice)){
-                input.close();
+            if (options.containsKey(choice)){
                 return choice;
-            } else if (choice.intValue() == 0){
-                input.close();
+            } else if (choice == 0){
+                System.out.println(input.nextLine());
                 return 0;
             }  else {
                 System.out.println("You need to choose one of the numbers on the list! (Or press 0 to quit)");

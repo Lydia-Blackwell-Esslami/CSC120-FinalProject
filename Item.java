@@ -1,8 +1,8 @@
 public class Item {
 
-    String name;
-    String type;
-    int price;
+    public String name;
+    public String type;
+    public int price;
 
     public Item(String name){
         this.name = name;
@@ -41,8 +41,12 @@ public class Item {
         if (this.type.contentEquals("eatable")){
             p.eat(this);
         } else if (this.type.contentEquals("drinkable")) {
-            
+            p.drink(this);
         }
+    }
+
+    public String toString(){
+        return this.name;
     }
 
     
