@@ -14,7 +14,7 @@ public class Computer extends Menu{
         this.options.put(1, "Hire employees");
         this.options.put(2, "Fire employees");
         this.options.put(3, "View employees");
-        this.options.put(4, "Schedule garage upgrades");
+        this.options.put(4, "View cars and schedule garage upgrades");
         this.options.put(5, "Pay bills");
         this.options.put(6, "Check email");
         this.owner = p;
@@ -52,7 +52,7 @@ public class Computer extends Menu{
                 String name = this.generateWorkerName();
                 Worker w = new Worker(name, this.owner);
                 workers.add(w);
-                potentialEmployees.options.put(i, name);  
+                potentialEmployees.options.put(i, w.toString());  
             }
             int widx = (potentialEmployees.runMenu()-1);
             this.owner.hire(workers.get(widx));
@@ -90,6 +90,8 @@ public class Computer extends Menu{
 
     public void upgradeGarage(){
         Menu garage = new Menu(3);
+        System.out.println("Your cars: ");
+        this.owner.showMyCars();
         System.out.println(this.owner.shop);
         System.out.println("Upgrade what?");
         garage.options.put(1, "Building size");

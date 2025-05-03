@@ -18,7 +18,7 @@ public class Car {
         this.location = startingLocation;
         this.trendingColor = "blue";
         this.parts = new Hashtable<>();
-        if (this.location.name.contentEquals("suburbs")){
+        if (this.location.name.contains("suburbs")){
             this.year = partMaker.nextInt(1998, 2023);
             parts.put("Tires", partMaker.nextInt(3, 6));
             parts.put("Brakes", partMaker.nextInt(3, 6));
@@ -52,12 +52,8 @@ public class Car {
     }
 
     public void upgrade(String part){
-        if (location.name.contains("repair shop")){
         int value = this.parts.get(part);
         this.parts.replace(part, value+1);
-        } else {
-            System.out.println("Can't do that here.");
-        }
     }
 
     public void overhaul(){
@@ -93,16 +89,28 @@ public class Car {
         state += parts.get("Transmission");
         state += parts.get("Engine");
 
-        this.price = (price*(state/5)*state+(300000-mileage))/(3000-year);
+        this.price = (price+((state/5)*state+(300000-mileage))/(3000-year));
 
         
         
+    }
+    public String toString(){
+        return(this.color + " " + this.year + " " + this.name + ", $" + this.price);
+    }
+
+    public String toDetailedString(){
+        return (this.toString()+ "\n" +this.parts + "\n Miles: " + this.mileage);
     }
 
 
 
 
-
+    public static void main(String[] args) {
+        for (int i = 0; i < 10; i++) {
+            Car c = new Car(new Place("suburbs"));
+            System.out.println(c);
+        }
+    }
 
 
     

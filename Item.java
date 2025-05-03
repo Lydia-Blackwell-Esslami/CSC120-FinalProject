@@ -10,7 +10,7 @@ public class Item {
     }
 
     public void findType(){
-        String eatables = "bread, sandwich, pizza, dinner, breakfast, lunch, egg, burger";
+        String eatables = "bread, sandwich, pizza, dinner, breakfast, lunch, egg, burger, jam, tomatoes, roast beef, onion, orange breakfast, lunch, dinner, sandwich, pizza";
         String drinkables = "milk, water, soda, juice, coffee, wine(alcohol), beer(alcohol)";
         String toxics = "bleach, oil, coolant, brake fluid, transmission fluid, brakeleen, pb-blaster, wiper fluid";
         if (eatables.contains(this.name)){

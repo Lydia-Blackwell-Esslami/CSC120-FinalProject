@@ -12,8 +12,8 @@ public class Main {
                                  "soda", "juice", "coffee", "wine(alcohol)", "beer(alcohol)", "bleach", "oil", "coolant", "brake fluid", 
                                  "transmission fluid", "brakeleen", "pb-blaster", "wiper fluid"};
     public String[] locationNames = {"home, living room", "home, bed", "home, bedroom", "home, hallway", "home, bathroom", "home, kitchen", 
-                                "lost", "outside, driveway", "outside, bus stop", "outside, bus", "outside, auto parts shop",
-                                "car","outside, diner", "outside, trailer park", "outside, suburbs", "work, office", 
+                                "lost", "outside, driveway", "outside, bus stop", "outside, bus", "outside, auto parts store",
+                                "car","outside, diner", "outside, trailer park", "outside, suburbs", "outside, grocery store", "work, office", 
                                 "work, parking lot", "work, repair shop"};
     
 
@@ -56,6 +56,12 @@ public class Main {
     }
 
     public Place parseLocation(String input){
+        if (input.contains("grocery")){
+            return new Place("grocery store");
+        }
+        if (input.contains("auto")){
+            return new Place("auto parts store");
+        }
         String[] parts = input.split(" ");
         String location = parts[parts.length - 1];
         for (int i = 0; i < locations.size(); i++) {
@@ -95,7 +101,7 @@ public class Main {
             } else {
                 System.out.println("Can't get there");
             }
-        } else if (input.contains("use ")|| input.contains("eat ")|| input.contains("drink ")) {
+        } else if ((input.contains("use ")&! input.contains("computer"))|| input.contains("eat ")|| input.contains("drink ")) {
             Item item = parseItemInventory(input, p);
             for (int idx = 0; idx < items.size(); idx++) {
                 Item useThis = items.get(idx);
@@ -108,7 +114,7 @@ public class Main {
         } else if (input.contains("drive ")){
             Place destination = parseLocation(input);
             p.drive(destination);
-        } else if (input.contains("shower ")) {
+        } else if (input.contains("shower")) {
             p.shower();
         } else if (input.contains("drop")||input.contains("put down")) {
             Item item = parseItemInventory(input, p);
@@ -121,7 +127,7 @@ public class Main {
                 } 
                 
             }
-        } else if (input.contains("buy")) {
+        } else if (input.contains("buy")&!input.contains("car")) {
             Item item = parseItemLocation(input, p);
             p.buy(item);
         } else if (input.contains("inventory")) {
@@ -132,6 +138,32 @@ public class Main {
             p.computer.parseMenu();
             p.updateTime(1);
 
+        } else if (input.contains("dress")){
+            p.dress();
+        
+        } else if (input.contains("talk")&!p.location.name.contains("shop")) {
+            if (p.location.NPC != null){
+                p.talk(p.location.NPC);
+            } else {
+                System.out.println("Talking to yourself...? Not a good look....");
+            }
+        } else if (input.contains("car")&! input.contains("sell")){
+            if (p.location.NPC != null){
+                Car c = p.location.NPC.showCars();
+                p.location.NPC.negotiate(p, c);
+            } else {
+                System.out.println("Talking to yourself...? Not a good look....");
+            }
+        } else if (input.contains("talk")&& p.location.name.contains("shop")){
+            p.interactWithWorkers();
+        } else if (input.contains("sell")){
+            if (p.location.name.contains("parking")){
+                System.out.println("Sell which car?");
+                Car c = p.showCars();
+                p.location.NPC.negotiateAsCustomer(p, c);
+            }
+        } else if ((input.contains("cook")||input.contains("prepare")||input.contains("make"))&& p.location.name.contains("kitchen")){
+            p.makeMeal();
         } else {
             System.out.println("That command isn't recognized");
         }
@@ -140,13 +172,16 @@ public class Main {
 
     public static void main(String[] args) {
         Player p = new Player();
+        p.help();
         Main main = new Main();
         p.showUI();
         p.showStatus();
         p.look();
         p.showInventory();
-        for (int i = 0; i < 10; i++) {
+        while (p.day <365) {
             main.parse(p);
+            p.checkBillsDue(true);
+            p.shop.passiveUpgradeCheck(p);
         }
 
         

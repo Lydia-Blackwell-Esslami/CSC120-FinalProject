@@ -9,11 +9,11 @@ public class Player extends Person {
     public int currentTime;
     public ArrayList<Worker> employees;
     public Computer computer;
-    public Phone phone;
     public Hashtable<Item, Boolean> inventory;
     public int day;
     public Hashtable<String, Boolean> bills;
     public RepairShop shop;
+    public ArrayList<Item> fridge;
 
     public Player(){
         super();
@@ -33,14 +33,14 @@ public class Player extends Person {
         this.bills.put("Shop", false);
         this.bills.put("Employees", false);
         this.bills.put("Taxes", false);
-        this.bankBalance = 0;
+        this.bankBalance = 3000;
         this.currentTime = 8;
         this.employees = new ArrayList<>();
         this.computer = new Computer(this, 4);
-        this.phone = new Phone(3);
         this.day = 1;
         this.location = new Place("home, bed");
         this.shop = new RepairShop();
+        this.fridge = new ArrayList<>();
         
     }
 
@@ -50,6 +50,10 @@ public class Player extends Person {
         this.currentTime %= 24;
         if (this.currentTime <= initalTime){
             this.day+=1;
+            this.statusEffects.replace("Unwashed", true);
+            this.statusEffects.replace("Hungry", true);
+            this.statusEffects.replace("Disheveled", true);
+
         }
         showUI();
         if (this.currentTime > 8 && this.currentTime <14){
@@ -65,10 +69,15 @@ public class Player extends Person {
     }
 
     public void sleep(){
-        if (this.location.name.contains("bed") || this.location.name.contains("office")){
+        if (this.location.name.contains("office")){
             this.updateTime(8);
             System.out.println("You sleep restfully and wake up refreshed");
             this.statusEffects.replace("tired", false);
+        } else if (this.location.name.equals("home, bed")){
+            this.currentTime = 8;
+            this.day += 1;
+            this.statusEffects.replace("tired", false);
+            showUI();
         } else {
             System.out.println("You tried to fall asleep here, to no avail");
         }
@@ -100,6 +109,11 @@ public class Player extends Person {
             System.out.println("You are in the bathroom. There is a shower, toilet, sink, and toothbrush.");
         } else if (this.location.name.contains("kitchen")){
             System.out.println("You are in the kitchen. There is a large refridgerator in front of you. You can go to the hallway, to the living room, or outside. Your shoes and keys are by the door. You can see your car in the driveway.");
+            if (!this.fridge.isEmpty()){
+                System.out.println("In the fridge you have... \n" + this.fridge);
+            } else {
+                System.out.println("...Nothing! You should go to the grocery store.");
+            }
         } else if (this.location.name.contains("living room")) {
             System.out.println("You are in the living room. There is a couch and televsion. Your shoes and keys are by the door. You can go out, or to the kitchen, or to the hallway. You can see your car in the driveway");
         } else if (this.location.name.contains("lost")){
@@ -128,13 +142,20 @@ public class Player extends Person {
             System.out.println("You are in the parking lot, surrounded by unsold cars");
         } else if (this.location.name.contains("repair shop")){
             System.out.println("You are in the back part of the shop, with tools, machinery, and broken down cars.");
+            if (!this.shop.supplyCloset.isEmpty()){
+                System.out.println("You have " + this.shop.supplyCloset + " in the supply closet.");
+            } else {
+                System.out.println("The supply closet is empty. You should go to the auto parts store and stock up");
+            }
             if (!this.employees.isEmpty()){
-                System.out.println("Your employees look at you curiously.");
+                if (this.currentTime < 17){
+                    System.out.println("Your employees look at you curiously.");
+                } else {
+                    System.out.println("Everyone has gone home for the day");
+                }
             }
         } else if (this.location.name.contains("computer")){
             computer.showOptions();
-        } else if (this.location.name.contains("phone")){
-            phone.showOptions();
         } else if (this.location.name.contains("grocery store")){
             System.out.println("You are at the grocery store. Many items sit enticingly on the shelves. Take something?");
         }
@@ -185,14 +206,64 @@ public class Player extends Person {
         }
     }
 
-    public void buy(Item item){
-        this.bankBalance -= item.price;
-        if(this.inventory.containsKey(item)){
-            this.inventory.replace(item, true);
-        } else {
-            this.inventory.put(item, true);
+    public void shop(){
+        if(this.location.name.contains("store")|| this.location.name.contains("diner")){
+          Menu shopping = new Menu(this.location.objects.size());
+          for (int idx = 0; idx < this.location.objects.size(); idx++) {
+              shopping.options.put(idx+1, (this.location.objects.get(idx).name + ", $" + this.location.objects.get(idx).price)); 
+          }
+          System.out.println("Buy something?");
+          int choice;
+          do{
+            choice = shopping.runMenu();
+            if (choice != 0){
+                buy(this.location.objects.get(choice-1));
+                System.out.println("Continue shopping? (Or press 0 to stop)");
+            }
+          } while (choice != 0);
+          System.out.println("Thank you for your business");
+          updateTime(1);
+          this.location = new Place("car");
+          
         }
         
+        
+    }
+
+    public void buy(Item item){
+        this.bankBalance -= item.price;
+        System.out.println("You now have $" + this.bankBalance);
+        if (this.location.name.contains("grocery")){
+            this.fridge.add(item);
+            System.out.println("Sent " + item.name + " to the fridge");
+        } else {
+            this.shop.supplyCloset.add(item);
+            System.out.println("Sent " + item.name + " to the supply closet");
+
+        }
+    }
+
+    public void makeMeal(){
+        if (this.fridge.size() >3){
+            System.out.println("Used "+ this.fridge.get(0).name + ", " + this.fridge.get(1).name + ", and " + this.fridge.get(2).name + " to make a nice...");
+            this.fridge.remove(0);
+            this.fridge.remove(1);
+            this.fridge.remove(2);
+            if (this.currentTime < 10){
+                this.inventory.put(new Item("breakfast"), true);
+                System.out.println("breakfast");
+                
+            } else if (this.currentTime >= 10 && this.currentTime <= 4){
+                this.inventory.put(new Item("lunch"), true);
+                System.out.println("lunch");
+            } else {
+                this.inventory.put(new Item("dinner"), true);
+                System.out.println("dinner");
+            }
+            updateTime(1);
+        } else {
+            System.out.println("You need to buy some groceries!");
+        }
     }
 
     public void eat(Item item){
@@ -200,6 +271,7 @@ public class Player extends Person {
             System.out.println("Ate the " + item.name);
             this.statusEffects.replace("Hungry", false);
             inventory.remove(item);
+            updateTime(1);
         } else {
             System.out.println("You want to eat a " + item.name + "?? What are you, a goat?");
         }
@@ -212,6 +284,9 @@ public class Player extends Person {
         destination.name.contains("car")|| this.location.name.contains("car"))){
             this.location = destination;
             this.look();
+            if (destination.name.contains("store")){
+                shop();
+            }
         } else {
             System.out.println("Too far to walk there.");
         }
@@ -219,6 +294,10 @@ public class Player extends Person {
 
     public void drive(Place destination){
         if (this.location.name.contains("car")){
+            if (this.statusEffects.get("Intoxicated")){
+                System.out.println("You are arrested for driving while drunk");
+                lose();
+            }
             this.location = destination;
             this.updateTime(1);
             this.look();
@@ -366,6 +445,109 @@ public class Player extends Person {
         return billsDue; 
     }
 
+    public void dress(){
+        if (this.location.name.contains("bedroom")){
+            this.statusEffects.replace("Disheveled", false);
+            System.out.println("Got dressed. Looking good!");
+            updateTime(1);
+        } else {
+            System.out.println("Couldn't get dressed. Are you in your bedroom? Do you have your clothes?");
+        }
+    }
+
+    public void talk(Person p){
+        p.talk(this);
+    }
+
+    public void interactWithWorkers(){
+        if (!this.employees.isEmpty()){
+            if (this.currentTime >=18 || this.currentTime < 7) {
+                System.out.println("Your employees went home for the night. They will return at 7am.");
+                return;
+            }
+            Menu workers = new Menu(this.employees.size());
+            for (int idx = 0; idx < this.employees.size(); idx++) {
+                workers.options.put(idx+1, this.employees.get(idx).name);
+                this.employees.get(idx).toString();
+            }
+            System.out.println("Which employee?");
+            Worker w = this.employees.get(workers.runMenu()-1);
+            System.out.println(w);
+            System.out.println("Do what with " + w.name + "? (Train or assign work)");
+            Scanner scanner = new Scanner(System.in);
+            String choice = scanner.nextLine();
+            if (choice.contains("train")){
+                System.out.println("What skill should " + w.name + " train?");
+                Menu training = new Menu(w.skills.size());
+                ArrayList<String> skills = new ArrayList<>();
+                w.skills.forEach((key, value)-> {
+                    skills.add(key);
+                });
+                for (int idx = 0; idx < skills.size(); idx++) {
+                    training.options.put(idx+1, skills.get(idx));
+                }
+                int skillChoice = training.runMenu();
+                if (skillChoice != 0){
+                    String trainThis = skills.get(skillChoice -1);
+                    System.out.println("How many times?");
+                    int j = scanner.nextInt();
+                    for (int i = 0; i < j ; i++) {
+                        w.learn(trainThis);
+                    }
+                } else {
+                    System.out.println("Nevermind...");
+                }
+            } else if (choice.contains("assign")&!this.shop.cars.isEmpty()){
+                Menu fixTheseCars = new Menu(this.shop.cars.size());
+                for (int idx = 0; idx < this.shop.cars.size(); idx++) {
+                    fixTheseCars.options.put(idx+1, this.shop.cars.get(idx).toString());
+                }
+                System.out.println("Which car should " + w.name + " work on?");
+                int carChoice = fixTheseCars.runMenu();
+                if (carChoice != 0){
+                    Car fixThis = this.shop.cars.get(carChoice-1);
+                    System.out.println(fixThis);
+                    System.out.println(fixThis.parts);
+                    Menu chooseParts = new Menu(fixThis.parts.size());
+                    ArrayList<String> parts = new ArrayList<>();
+                    fixThis.parts.forEach((key, value)->{
+                        parts.add(key);
+                    });
+                    for (int idx = 0; idx < parts.size(); idx++) {
+                        chooseParts.options.put(idx+1, parts.get(idx));
+                    }
+                    System.out.println("Repair which part?");
+                    int partChoice = chooseParts.runMenu();
+                    if (partChoice != 0){
+                        String part = parts.get(partChoice-1);
+                        System.out.println("How many times?");
+                        int j = scanner.nextInt();
+                        for (int i = 0; i < j; i++) {
+                            w.fix(fixThis, part);
+                        }
+                    } else {
+                        System.out.println("Canceling...");
+                    }
+                } else {
+                    System.out.println("Canceling....");
+                }
+            } else {
+                System.out.println("Decided not to do anything. (Put some cars in the shop before you assign work!)");
+            }
+            
+        } else {
+            System.out.println("Talking to yourself? Sad.... You should use the office computer to hire some help.");
+        }
+    }
+
+    public void showMyCars(){
+        for (int idx = 0; idx < this.cars.size(); idx++) {
+            System.out.println(this.cars.get(idx).toDetailedString());
+        }
+    }
+
+
+
 
 
     public void lose(){
@@ -378,31 +560,31 @@ public class Player extends Person {
         System.out.println("""
                            ====The Basics==== 
                            Type commands into the terminal. You can go to nearby places by walking, but for further ones you will need to get in your car and drive.
-                           Check your current condition using 'status' and your pockets using 'inventory'. Don't hesitate to look aroud you if you are lost.
+                           Check your current condition using 'status' and your pockets using 'inventory'. Don't hesitate to 'look' aroud you if you are lost.
                            Keep an eye on the time of day and your bank balance. It is a good idea to go to work every day, but take time to explore the city too.
                            ====Working====
                            You are the owner of a small used car dealership. You will need to explore the city to find used cars you can buy, repair them, and sell them.
                            1: Looking for cars
-                           The trailer park is a good place to find inexpensive, broken down cars. There is a chance that you will also find rare and pricessless models buried in the weeds.
-                           The suburbs have many cars for sale as well, which are more expensive but require less restoration.
+                           The 'trailer park' is a good place to find inexpensive, broken down cars. There is a chance that you will also find rare and pricessless models buried in the weeds.
+                           The 'suburbs' have many cars for sale as well, which are more expensive but require less restoration.
                            2: Negotiating
                            Every car, no matter how broken down, has value to its owner. If you can get the owner into a good mood before starting the negotiation, you will get a better price.
                            Your physical appearance is of great importance when interacting with people, so be sure to attend to your personal hygine each morning before work.
                            3: Repair
-                           You should repair every car to a perfect condition before selling it. Cars are repaired in the garage. 
-                           The sale value of a car can be greatly increased by following consumer trends. You can use your phone to call your uncle for information about these.
+                           You should repair every car to a perfect condition before selling it. Cars are repaired in the 'repair shop'. 
+                           The sale value of a car can be greatly increased by following consumer trends. You can check your email on your office computer for information about these.
                            4: Sale
-                           Once you have repaired a car, drive it to the parking lot and return to your office to wait for customers. You will have to negotiate with the customers.
+                           Once you have repaired a car, go to the 'parking lot' to wait for customers. You will have to negotiate with the customers.
                            5: Employees
                            You can use your office computer to hire mechanics who can fix cars, saving you valuable time. Each mechanic has a unique skillset, however, every mechanic can be trained to do any task.
                            Mechanics are only able to do tasks they are proficient in. Once a mechanic is proficient in a skill, you can ask them to train other mechanics in that skill.
                            6: The Shop
                            You can use your office computer to purchase various upgrades for different parts of the shop. You should also check the garage supply closet regularly.
-                           You can restock the garage at the auto parts store. Be warned that any chemicals you buy there are toxic.
+                           You can restock the garage at the 'auto parts store'. Be warned that any chemicals you buy there are toxic.
                            ====Daily Life====
-                           Other than working, you must eat and drink to sustain yourself. If you are hungry, it will take longer to complete most tasks.
-                           You must go to the store periodically to buy food. You can also eat out at the diner. 
-                           If you see someone out in the world, do not be afraid to start a conversation with them. Who knows, love may even bloom...""");
+                           Other than working, you must 'eat' and 'drink' the items in your inventory to sustain yourself. If you are hungry, it will take longer to complete most tasks.
+                           You must go to the 'grocery store' periodically to buy food. You can also eat out at the 'diner'. 
+                           If you see someone out in the world, do not be afraid to 'talk' to them. You can learn a lot of useful information this way.""");
     }
     
 

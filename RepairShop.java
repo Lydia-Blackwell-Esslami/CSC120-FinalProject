@@ -1,6 +1,4 @@
-
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 public class RepairShop {
     public ArrayList<Car> cars;
@@ -10,7 +8,7 @@ public class RepairShop {
     private int upgrade;
     private boolean inProgress;
     private int completionDate;
-    public Hashtable<Item, Integer> inventory;
+    public ArrayList<Item> supplyCloset;
     Item[] supplies = {new Item("bleach"),new Item("oil"),new Item("coolant"),new Item("brake fluid"),
                        new Item("transmission fluid"),new Item("brakeleen"),new Item("pb-blaster"),new Item("wiper fluid")};
 
@@ -19,11 +17,12 @@ public class RepairShop {
         this.buildingSize = 1;
         this.garageCapacity = 3;
         this.parkingCapacity = 15;
-        this.inventory = new Hashtable<>();
+        this.supplyCloset = new ArrayList<>();
         this.inProgress = false;
         this.completionDate = -1;
+        this.upgrade = -1;
         for (int idx = 0; idx < supplies.length; idx++) {
-            this.inventory.put(supplies[idx], 15);
+            this.supplyCloset.add(supplies[idx]);
             
         }
         
@@ -42,7 +41,8 @@ public class RepairShop {
                 int c = confirm.runMenu();
                 if (c == 1){
                     p.bankBalance -= 6000;
-                    passiveUpgradeCheck((p.day+30), upgradeThis, p);
+                    this.completionDate = p.day+30;
+                    this.upgrade = upgradeThis;
                     return true;
                 } else {
                     return false;
@@ -52,7 +52,8 @@ public class RepairShop {
                 int c = confirm.runMenu();
                 if (c == 1){
                     p.bankBalance -= 1000;
-                    passiveUpgradeCheck((p.day+10), upgradeThis, p);
+                    this.completionDate = p.day+10;
+                    this.upgrade = upgradeThis;
                     return true;
                 } else {
                     return false;
@@ -62,7 +63,8 @@ public class RepairShop {
                 int c = confirm.runMenu();
                 if (c == 1){
                     p.bankBalance -= 500;
-                    passiveUpgradeCheck((p.day+7), upgradeThis, p);
+                    this.completionDate = p.day+7;
+                    this.upgrade = upgradeThis;
                     return true;
                 } else {
                     return false;
@@ -73,17 +75,15 @@ public class RepairShop {
         
     }
 
-    public void passiveUpgradeCheck(int completionDate, int upgrade, Player p){
+    public void passiveUpgradeCheck(Player p){
         this.inProgress = true;
-        this.completionDate = completionDate;
-        this.upgrade = upgrade;
         if (p.day == this.completionDate){
-            if (upgrade == 1){
+            if (this.upgrade == 1){
                 this.buildingSize += 1;
                 this.inProgress = false;
-            } else if (upgrade==2){
+            } else if (this.upgrade==2){
                 this.garageCapacity += 5;
-            } else if (upgrade == 3){
+            } else if (this.upgrade == 3){
                 this.parkingCapacity += 10;
             }
         }
@@ -91,8 +91,8 @@ public class RepairShop {
     }
 
     public String toString(){
-        return ("Garage has a max capacity of "+ 5*this.buildingSize + "with " + this.garageCapacity + 
-        "bays currently installed. \n A maximum of" +  this.parkingCapacity +" cars can be stored here \n Upgrades in progress: " + this.inProgress);
+        return ("Garage has a max capacity of "+ 5*this.buildingSize + " with " + this.garageCapacity + 
+        " bays currently installed. \n A maximum of " +  this.parkingCapacity +" cars can be stored here. \n Upgrades in progress: " + this.inProgress);
     }
     
 }

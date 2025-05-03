@@ -22,20 +22,35 @@ public class Worker extends Person{
         skills.put("Oil", skillAssigner.nextInt(0, 6));
         skills.put("Transmission", skillAssigner.nextInt(0, 6));
         skills.put("Engine", skillAssigner.nextInt(0, 6));
+        this.boss = boss;
         
 
 
     }
 
     public void learn(String skill){
+        int level = this.skills.get(skill);
+        if (level >= 5){
+            System.out.println("I'm already profiecent in " + skill + " repair.");
+        } else {
+            this.skills.replace(skill, level +1);
+            System.out.println(this.name + " increased skill of " + skill + " repair by one point.");
+            this.boss.updateTime(2);
+
+        }
 
     }
 
     public void fix(Car c, String part){
         if (this.skills.get(part) >= 5){
             c.upgrade(part);
-            System.out.println("Repaired the " + part);
+            System.out.println("Repaired the " + part + " using " + boss.shop.supplyCloset.get(0));
+            boss.shop.supplyCloset.remove(0);
+            if (boss.shop.supplyCloset.isEmpty()){
+                System.out.println("Out of suppiles. You'll need to go to the auto parts store and restock.");
+            }
             boss.updateTime(1);
+
         } else {
             System.out.println(this.name + " needs more training in order to repair " + part + 
                                ". \n Current skill level: " + this.skills.get(part) + "Required level: 5");
@@ -43,8 +58,6 @@ public class Worker extends Person{
 
     }
     public String toString(){
-        System.out.println("Worker: " +this.name+ "\n Skills: ");
-        System.out.println(this.skills);
-        return "";
+        return ("Worker: " +this.name + ". Daily wage: $" + this.wage + "\n Skills: \n" + this.skills);
     }
 }

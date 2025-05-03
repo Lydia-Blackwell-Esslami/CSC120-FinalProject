@@ -17,7 +17,7 @@ public class Place {
   
 
     public void setObjects(String name){
-        String[] homeItems = {"shoes", "keys", "wallet", "watch", "sunglasses"};
+        String[] homeItems = {"shoes", "keys", "wallet", "watch", "sunglasses", "clothes"};
         String[] fridgeItems = {"bread", "egg", "milk", "water", "soda", "juice", "jam", "tomatoes", "roast beef", "onion", "orange"};
         String[] dinerItems = {"peanuts", "soda", "juice", "breakfast", "lunch", "dinner", "sandwich", "pizza", "wine(alcohol)", "beer(alcohol)"};
         String[] carItems = { "oil", "coolant", "brake fluid", "transmission fluid", "brakeleen", "pb-blaster", "wiper fluid", 
@@ -34,13 +34,7 @@ public class Place {
                 
             }
         }
-        if (name.contains("kitchen")){
-            for (int idx = 0; idx < fridgeItems.length; idx++) {
-                Item item = new Item(fridgeItems[idx]);
-                this.objects.add(item);
-                
-            }  
-        }
+      
         if (name.contains("diner")){
             for (int idx = 0; idx < dinerItems.length; idx++) {
                 Item item = new Item(dinerItems[idx]);
@@ -48,14 +42,10 @@ public class Place {
                 
             }  
         }
-        if (name.contains("shop")){
+        if (name.contains("auto")||name.contains("shop")){
             for (int idx = 0; idx < carItems.length; idx++) {
                 Item item = new Item(carItems[idx]);
                 this.objects.add(item);
-                
-            }
-            if (name.equals("repair shop")){
-                this.cars.add(new Car(this));
             }
               
         }
@@ -79,6 +69,15 @@ public class Place {
                 Item item = new Item(trailerItems[idx]);
                 this.objects.add(item);
             }  
+        }
+        if (name.contains("grocery")){
+            for (int idx = 0; idx < fridgeItems.length; idx++) {
+                Item item = new Item(fridgeItems[idx]);
+                this.objects.add(item);
+            }
+        }
+        if (name.contains("parking")){
+            this.NPC = new Person("Bored customer", this);
         }
 
     }
