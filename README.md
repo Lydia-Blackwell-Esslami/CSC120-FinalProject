@@ -41,7 +41,6 @@ I have several functions that are designed to fail silently and I'm wishing I ha
 
 
 
-
 Update: I ended up making a Place class after all becuase it solves the problem of the program only recognizing hyperspecific location names and the problem of the player picking up objects that shouldn't exist.
 
  - If you had **unlimited time**, what additional features would you implement?
@@ -54,6 +53,8 @@ The paint method. I coded it in the car class but then forgot about it so it can
 And the ability for workers to train each other. I meant to add it but just never got around to it
 Basically everything that I listed in the above section. 
 Also, a way to update the car prices before the time of sale without getting into a decreasing value feedback loop. It's more mathematically complicated than it sounds, trust me.
+The ability to quit the game WITHOUT having to throw an exception from the command line
+
  
  - What was the most helpful **piece of feedback** you received while working on your project? Who gave it to you?
 I was struggling with implementing this one easter egg involving the bus, and I was talking to Hajer about it and she was like "You don't have to add that." and that was like game-changing to me. 
