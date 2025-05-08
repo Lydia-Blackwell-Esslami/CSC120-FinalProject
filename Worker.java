@@ -4,6 +4,9 @@ import java.util.Random;
 
 public class Worker extends Person{
 
+    /**
+     * The workers who fix the cars
+     */
     public Hashtable<String, Integer> skills;
     public int wage;
     public Player boss;
@@ -28,6 +31,10 @@ public class Worker extends Person{
 
     }
 
+    /**
+     * Upgrades the skill level of a worker in one skill by one point, if it is not already at level five
+     * @param skill The skill to be upgraded
+     */
     public void learn(String skill){
         int level = this.skills.get(skill);
         if (level >= 5){
@@ -41,6 +48,11 @@ public class Worker extends Person{
 
     }
 
+    /**
+     * Repairs one part of one car by one point, if the worker has a high enough skill level
+     * @param c The car to be repaired
+     * @param part The part to be repaired
+     */
     public void fix(Car c, String part){
         if (this.skills.get(part) >= 5){
             c.upgrade(part);

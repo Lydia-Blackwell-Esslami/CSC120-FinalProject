@@ -31,6 +31,12 @@ public class RepairShop {
         
     }
 
+    /**
+     * Called from the computer class, schedules grarge upgrades
+     * @param p The player who owns the repairshop
+     * @param upgradeThis The attribute to be upgraded
+     * @return boolean of wether or not the upgraded was sucessfully scheduled
+     */
     public boolean  upgrade(Player p, int upgradeThis){
         if (this.inProgress){
             System.out.println("Upgrades are already in progress. They will be finished in " + this.completionDate + " days");
@@ -78,6 +84,10 @@ public class RepairShop {
         
     }
 
+    /**
+     * Silent function that runs regularly to check if the upgrades have been completed
+     * @param p The player who owns the repairshop
+     */
     public void passiveUpgradeCheck(Player p){
         this.inProgress = true;
         if (p.day == this.completionDate){
