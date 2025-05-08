@@ -3,6 +3,9 @@ import java.util.Hashtable;
 import java.util.Random;
 
 public class Car {
+    /**
+     * The cars that can be bought, sold, and repaired by the player
+     */
 
     public Hashtable<String, Integer> parts;
     public String color;
@@ -66,21 +69,19 @@ public class Car {
                 mileage/=2;       
         }
     }
-
+    /**
+     * Method for changing the color of the car. It never actually gets used
+     * @param color The color to change the car to
+     */
     public void paint(String color){
         if (this.location.name.contains("repair shop")){
             this.color = color;
-            if (color.equals(trendingColor)){
-                this.price += 500;
-            }
         } else {
             System.out.println("Can't do that here.");
         }
     }
 
     public void calculateFinalPrice(){
-        
-        String s = "Milage, Year";
         int state = 0;
         state += parts.get("Tires");
         state += parts.get("Brakes");
@@ -88,11 +89,11 @@ public class Car {
         state += parts.get("Oil");
         state += parts.get("Transmission");
         state += parts.get("Engine");
-
+        
         this.price = (price+((state/5)*state+(300000-mileage))/(3000-year));
-
-        
-        
+        if (color.equals(trendingColor)){
+            this.price += 500;
+        }
     }
     public String toString(){
         return(this.color + " " + this.year + " " + this.name + ", $" + this.price);

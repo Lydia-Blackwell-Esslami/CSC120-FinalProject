@@ -1,5 +1,9 @@
 public class Item {
 
+    /**
+     * The items in the game, which have various properties
+     */
+
     public String name;
     public String type;
     public int price;
@@ -28,9 +32,9 @@ public class Item {
 
     public void setPrice(){
         this.findType();
-        if (this.type.contentEquals("eatable")){
+        if (this.type.contains("eatable")){
             this.price = 50;
-        } else if (this.type.contentEquals("drinkable")) {
+        } else if (this.type.contains("drinkable")) {
             this.price = 25;
         } else {
             this.price = 10;
@@ -38,15 +42,21 @@ public class Item {
     }
 
     public void use(Player p){
-        if (this.type.contentEquals("eatable")){
+        if (this.type.contains("eatable")){
             p.eat(this);
-        } else if (this.type.contentEquals("drinkable")) {
+        } else if (this.type.contains("drinkable")||this.type.contains("toxic")) {
             p.drink(this);
+        } else {
+            System.out.println("You don't know how");
         }
     }
 
     public String toString(){
         return this.name;
+    }
+
+    public boolean equals(Item i){
+        return this.name.equals(i.name);
     }
 
     

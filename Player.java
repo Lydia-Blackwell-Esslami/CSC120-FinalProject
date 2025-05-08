@@ -4,16 +4,22 @@ import java.util.Hashtable;
 import java.util.Scanner;
 
 public class Player extends Person {
-    public Hashtable<String, Boolean> statusEffects;
+
+    /**
+     * The player
+     */
+
+    public Hashtable<String, Boolean> statusEffects; //The boolean represents if the effect is currently applied
     public int bankBalance;
     public int currentTime;
     public ArrayList<Worker> employees;
     public Computer computer;
-    public Hashtable<Item, Boolean> inventory;
+    public Hashtable<Item, Boolean> inventory; //The boolean represents wether the item was stolen
     public int day;
-    public Hashtable<String, Boolean> bills;
+    public Hashtable<String, Boolean> bills; //The boolean represents wether the bill has been paid
     public RepairShop shop;
     public ArrayList<Item> fridge;
+    public String trendingColor;
 
     public Player(){
         super();
@@ -41,10 +47,17 @@ public class Player extends Person {
         this.location = new Place("home, bed");
         this.shop = new RepairShop();
         this.fridge = new ArrayList<>();
+        this.trendingColor = "blue";
         
     }
 
+    /**
+     * Updates the in-game date and time
+     * @param amt The number of hours to progress time by
+     */
     public void updateTime(int amt){
+        String[] colors = new String[] {"blue", "red", "green", "white", "black"};
+        this.trendingColor = colors[this.day/73];
         int initalTime = this.currentTime;
         this.currentTime += amt;
         this.currentTime %= 24;
@@ -68,21 +81,31 @@ public class Player extends Person {
         
     }
 
+    /**
+     * Passes time and changes status effects
+     */
     public void sleep(){
-        if (this.location.name.contains("office")){
+        if (this.location.name.contains("office")||this.location.name.contains("car")){
             this.updateTime(8);
             System.out.println("You sleep restfully and wake up refreshed");
-            this.statusEffects.replace("tired", false);
+            this.statusEffects.replace("Tired", false);
+            this.statusEffects.replace("Intoxicated", false);
+            this.statusEffects.replace("Hungry", true);
         } else if (this.location.name.equals("home, bed")){
             this.currentTime = 8;
             this.day += 1;
-            this.statusEffects.replace("tired", false);
+            this.statusEffects.replace("Tired", false);
+            this.statusEffects.replace("Intoxicated", false);
+            this.statusEffects.replace("Hungry", true);
             showUI();
         } else {
             System.out.println("You tried to fall asleep here, to no avail");
         }
     }
 
+    /**
+     * Somewhat obsolete method for getting out of bed
+     */
     public void getUp(){
         if (this.location.name.equals("home, bed")){
             this.location = new Place("home, bedroom");
@@ -93,6 +116,9 @@ public class Player extends Person {
         }
     }
 
+    /**
+     * Prints appropriate flavortext at each location
+     */
     public void look(){
         if (this.location.name.equals("home, bed")){
             System.out.println("You are in bed.");
@@ -172,24 +198,37 @@ public class Player extends Person {
     }
 
 
+    /**
+     * Adds an item to the player's inventory
+     * @param item The item to be added
+     */
     public void take(Item item){
         this.inventory.put(item, false);
         System.out.println("Picked up the " + item.name);
     }
 
+    /**
+     * Removes an item from the player's inventory
+     * @param item The item to be removed
+     */
     public void drop(Item item){
         this.inventory.remove(item);
         System.out.println("Dropped the " + item.name);
     }
 
+    /**
+     * Triggers when the player leaves a location with an NPC after taking an item to see if they will be caught stealing
+     * @param person The NPC belonging to the location
+     */
     public void stealFrom(Person person){
         if (this.inventory.contains(false)){
             if (person.noticeTheft()){
                 this.inventory.forEach(
                     (key, value) -> {
                     if (value == false){
-                        inventory.remove(key);
-                        System.out.println("Put down the stolen " + key.name);
+                        inventory.replace(key, true);
+                        System.out.println("Stole the " + key.name + " but at what cost....");
+                        
                     }
                   }
                   );
@@ -198,7 +237,7 @@ public class Player extends Person {
                     (key, value) -> {
                         if (value == false){
                             inventory.replace(key, true);
-                            System.out.println("Stole the " + key.name);
+                            System.out.println("Got away with stealing the " + key.name);
                         }
                       }
                 );
@@ -206,6 +245,10 @@ public class Player extends Person {
         }
     }
 
+
+    /**
+     * Allows the player to purchase items in shops
+     */
     public void shop(){
         if(this.location.name.contains("store")|| this.location.name.contains("diner")){
           Menu shopping = new Menu(this.location.objects.size());
@@ -230,12 +273,18 @@ public class Player extends Person {
         
     }
 
+    /**
+     * helper function for shop()
+     * @param item The item to be bought
+     */
     public void buy(Item item){
         this.bankBalance -= item.price;
         System.out.println("You now have $" + this.bankBalance);
         if (this.location.name.contains("grocery")){
             this.fridge.add(item);
             System.out.println("Sent " + item.name + " to the fridge");
+        } else if (this.location.name.contains("diner")){
+            this.inventory.put(item, true);
         } else {
             this.shop.supplyCloset.add(item);
             System.out.println("Sent " + item.name + " to the supply closet");
@@ -243,8 +292,11 @@ public class Player extends Person {
         }
     }
 
+    /**
+     * Removes the first three items from the fridge and adds a meal to the player's inventory
+     */
     public void makeMeal(){
-        if (this.fridge.size() >3){
+        if (this.fridge.size() >=3){
             System.out.println("Used "+ this.fridge.get(0).name + ", " + this.fridge.get(1).name + ", and " + this.fridge.get(2).name + " to make a nice...");
             this.fridge.remove(0);
             this.fridge.remove(1);
@@ -266,8 +318,12 @@ public class Player extends Person {
         }
     }
 
+    /**
+     * Allows the player to eat an eatable item
+     * @param item The Item to be eaten
+     */
     public void eat(Item item){
-        if (item.type.contentEquals("eatable")){
+        if (item.type.contains("eatable")){
             System.out.println("Ate the " + item.name);
             this.statusEffects.replace("Hungry", false);
             inventory.remove(item);
@@ -277,21 +333,32 @@ public class Player extends Person {
         }
     }
 
+    /**
+     * Method for traveling between nearby locations
+     * @param destination The place where the player will go
+     */
     public void go(Place destination){
         if((this.location.name.contains("home")&&destination.name.contains("home"))||
         (this.location.name.contains("outside")&& destination.name.contains("outside")||
         (this.location.name.contains("work")&& destination.name.contains("work"))|| 
-        destination.name.contains("car")|| this.location.name.contains("car"))){
+        destination.name.contains("car"))){
+            if(this.location.NPC!=null){
+                stealFrom(this.location.NPC);
+            }
             this.location = destination;
             this.look();
             if (destination.name.contains("store")){
                 shop();
             }
         } else {
-            System.out.println("Too far to walk there.");
+            System.out.println("Too far to walk there. Tip: if you're in your car, use 'drive'");
         }
     }
 
+    /**
+     * Method for traveling between distant locations 
+     * @param destination The place where the player will go
+     */
     public void drive(Place destination){
         if (this.location.name.contains("car")){
             if (this.statusEffects.get("Intoxicated")){
@@ -301,6 +368,9 @@ public class Player extends Person {
             this.location = destination;
             this.updateTime(1);
             this.look();
+            if (destination.name.contains("store")){
+                shop();
+            }
         } else {
             System.out.println("You can't drive when you aren't in a car!");
         }
@@ -334,18 +404,23 @@ public class Player extends Person {
 
     }
 
+    /**
+     * Method for drinking normal drinks, alcohol, and toxins
+     * @param item The item to be drunk
+     */
     public void drink(Item item){
         if (inventory.containsKey(item)){
-            if (item.type.contentEquals("drinkable")){
+            if (item.type.contains("drinkable")){
                 this.inventory.remove(item);
                 System.out.println("Drank the " + item.name);
                 if (item.name.contains("alcohol")){
                     this.statusEffects.replace("Intoxicated", true);
                     System.out.println("You are now drunk.");
                 }
-            } else if (item.type.contentEquals("toxics")) {
+            } else if (item.type.contains("toxic")) {
                 System.out.println("You have poisoned yourself! \n You spend the rest of the day in the hospital... \n Hospital bill: $3,000");
                 this.bankBalance -= 3000;
+                this.location = new Place("home, bed");
                 this.sleep();
             } else {
                 System.out.println("Drinking this sounds like a bad idea...");
@@ -374,6 +449,11 @@ public class Player extends Person {
         this.employees.remove(w);
     }
 
+    /**
+     * Keeps track of the player's bills and handles automatic and manual payments
+     * @param silent Wether the method should silently check if any bills are due, or print bills, amounts, and due dates
+     * @return A list of psudoindexs for the payBills method in the computer class to use
+     */
     public ArrayList<Integer> checkBillsDue(boolean silent){
         Integer houseBills = 500;
         Integer shopBills = 700;

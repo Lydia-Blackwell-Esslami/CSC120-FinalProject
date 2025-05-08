@@ -1,13 +1,16 @@
 import java.util.ArrayList;
 
 public class RepairShop {
+    /**
+     * Repair shop is also the name of a place instance, however the actual repairshop is its own class
+     */
     public ArrayList<Car> cars;
-    public int buildingSize;
-    public int garageCapacity;
+    public int buildingSize; //Determines the number of bays that can be installed
+    public int garageCapacity; //The number of bays currently installed
     public int parkingCapacity;
-    private int upgrade;
-    private boolean inProgress;
-    private int completionDate;
+    private int upgrade; //Which attribute is currently being upgraded
+    private boolean inProgress; //Wether or not upgrades are in progress
+    private int completionDate; //The date on which the upgrades will be completed
     public ArrayList<Item> supplyCloset;
     Item[] supplies = {new Item("bleach"),new Item("oil"),new Item("coolant"),new Item("brake fluid"),
                        new Item("transmission fluid"),new Item("brakeleen"),new Item("pb-blaster"),new Item("wiper fluid")};

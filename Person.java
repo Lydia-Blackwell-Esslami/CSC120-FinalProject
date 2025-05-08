@@ -4,19 +4,33 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Person{
+
+    /*
+     * The Person class has multiple variations for the different types of people in the game
+     */
+
     public String name;
     public Place location;
     public int mood;
     public String job;
     public ArrayList<Car> cars;
+    public String[] randomResponses;
 
 
+    /**
+     * The player class supers from this constructor
+     */
     public Person(){
         this.location = new Place("null");
         this.mood = 0; 
         this.cars = new ArrayList<>();
     }
 
+    /**
+     * NPCs super from this constructor
+     * @param name The name of the NPC
+     * @param location The place where NPC can be found
+     */
     public Person(String name, Place location){
         this.name = name;
         this.location = location;
@@ -27,7 +41,11 @@ public class Person{
             this.cars.add(c);
         }
     }
-
+    /**
+     * Employees super from this constuctor
+     * @param name The name of the employee
+     * @param job Can be used to differentiate employees from other NPCs
+     */
     public Person(String name, String job){
         this.name = name;
         this.location = new Place("null");
@@ -35,17 +53,24 @@ public class Person{
         this.job = job;
     }
 
-    public void chat(){
-
-    }
-
+    
+    /**
+     * Method used by this person to sell a car to the player
+     * @param c The car to be sold
+     * @param p The player to sell the car to
+     * @param r The repairshop belonging to the player
+     */
     public void sellCar(Car c, Player p, RepairShop r){
         r.cars.add(c);
         p.cars.add(c);
         this.cars.remove(c);
     }
     
-
+    /**
+     * Method used by this person to buy a car from the player
+     * @param c The car to be bought
+     * @param p The player to buy the car from
+     */
     public void buyCar(Car c, Player p){
         p.cars.remove(c);
         p.bankBalance += c.price;
@@ -53,12 +78,11 @@ public class Person{
 
     }
 
-    public void recieveFlirting(Player p){
-    
-
-
-    }
-
+    /**
+     * Produces a sale interaction, then calls sellCar with the result
+     * @param p The player
+     * @param c The car to be sold to the player
+     */
     public void negotiate(Player p, Car c){
         if (c!= null){
             Scanner negotiation = new Scanner(System.in);
@@ -80,7 +104,11 @@ public class Person{
         }       
 
     }
-
+    /**
+     * Produces a sale interaction, then calls buyCar with the result
+     * @param p The player
+     * @param c The car to be sold by the player to an NPC
+     */
     public void negotiateAsCustomer(Player p, Car c){
         if (c!= null){
             Scanner negotiation = new Scanner(System.in);
@@ -101,7 +129,10 @@ public class Person{
         }
     }
 
-
+    /**
+     * Method that triggers when you take something from an NPC's house
+     * @return boolean of wether or not they noticed the theft
+     */
     public boolean  noticeTheft(){
         Random random = new Random();
         int notice = random.nextInt(0, 2);
@@ -109,17 +140,16 @@ public class Person{
             return false;
         } else {
             this.mood -= 10;
-            System.out.println(this.name + "caught you stealing and is very upset...");
+            System.out.println(this.name + " caught you stealing and is very upset...");
             return true;
         }
     }
 
-
+    /**
+     * Creates a conversation interaction, then prompts the player to get a drink. If they accept, the NPC's mood is greatly increased
+     * @param p The player
+     */
     public void talk(Player p){
-        String[] randomResponses = {"Now you don't see weather like this very often.", 
-        "You know, the other day it rained so hard, it wasn't even raining cats and dogs, it was raining lions and wolves!",
-        "Yeah, I know what you mean.", "Hey, cheer up pal.", "You check your email recently? I hear you can find out about market trends that way.",
-        "Did you see what that guy said on TV last night? Unbelievable."};
         Random responseChooser = new Random();
         Scanner conversation = new Scanner(System.in);
         System.out.println("Hey what's up?");
@@ -142,11 +172,11 @@ public class Person{
         p.updateTime(1);
     }
 
+    /**
+     * Creates a conversation interaction, but doesn't prompt the player to drink
+     * @param p The player
+     */
     public void talkAsCustomer(Player p){
-        String[] randomResponses = {"Now you don't see weather like this very often.", 
-        "You know, the other day it rained so hard, it wasn't even raining cats and dogs, it was raining lions and wolves!",
-        "Yeah, I know what you mean.", "Hey, cheer up pal.", "You check your email recently? I hear you can find out about market trends that way.",
-        "Did you see what that guy said on TV last night? Unbelievable."};
         Random responseChooser = new Random();
         Scanner conversation = new Scanner(System.in);
         System.out.println("Hey what's up?");
@@ -159,6 +189,10 @@ public class Person{
         p.updateTime(1);
     }
 
+    /**
+     * Prompts the player to select one of the cars owned by the NPC
+     * @return The car that was selected
+     */
     public Car showCars(){
         Menu pickCar = new Menu(this.cars.size());
         for (int idx = 0; idx < this.cars.size(); idx++) {

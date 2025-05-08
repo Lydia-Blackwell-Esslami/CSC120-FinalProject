@@ -26,6 +26,8 @@ Also, letting the computer use a text interface instead of a number one. But hon
 Also, actual dialogue instead of a menu. But again that would have been a pain to implement with having to give each person actual, different dialouge options. This game is about fixing cars and selling them so the majority of my effort needs to be invested into that part.
 Also I ended up using so many scanners that in hindsight it would've been easier to just give each a scanner as an attribute instead of making new ones every time.
 
+Looking back on it now it would've been a lot more efficient to have one "locate item" function in the main that took a parameter for where it should look for the item, but at this point I don't want to change anything becuase I don't have time to mess with things that work and have to debug them again.
+
 Update: I ended up making a Place class after all becuase it solves the problem of the program only recognizing hyperspecific location names and the problem of the player picking up objects that shouldn't be about to exist.
 
  - If you had **unlimited time**, what additional features would you implement?
